@@ -1,0 +1,131 @@
+#pragma kernel CSMain
+
+struct Particle
+{
+    float3 position;
+    float3 velocity;
+    float density;
+    float pressure;
+};
+
+RWStructuredBuffer<Particle> particles;
+
+int particleCount;
+float restDensity;
+float stiffness;
+float viscosity;
+float particleMass;
+float gravity;
+float3 gravityDirection;
+float3 windForce;
+float windStrength;
+float deltaTime;
+float smoothingRadius;
+float3 boxMin;
+float3 boxMax;
+
+float Poly6Kernel(float r, float h)
+{
+    if (r > h) return 0.0;
+    float h2 = h * h;
+    float r2 = r * r;
+    float hr = h2 - r2;
+    return (315.0 / (64.0 * 3.141592653589793 * pow(h, 9.0))) * pow(hr, 3.0);
+}
+
+float3 SpikyKernelGradient(float3 r, float h)
+{
+    float rLength = length(r);
+    if (rLength > h) return float3(0, 0, 0);
+    float hr = h - rLength;
+    float coefficient = (45.0 / (3.141592653589793 * pow(h, 6.0))) * pow(hr, 2.0);
+    return coefficient * (r / rLength);
+}
+
+float ViscosityKernelLaplacian(float r, float h)
+{
+    if (r > h) return 0.0;
+    return (45.0 / (3.141592653589793 * pow(h, 6.0))) * (h - r);
+}
+
+[numthreads(256, 1, 1)]
+void CSMain(uint3 id : SV_DispatchThreadID)
+{
+    if (id.x >= particleCount) return;
+
+    Particle p = particles[id.x];
+
+    // Compute density
+    p.density = 0.0;
+    for (int i = 0; i < particleCount; ++i)
+    {
+        float distance = length(particles[i].position - p.position);
+        if (distance < smoothingRadius)
+        {
+            float weight = Poly6Kernel(distance, smoothingRadius);
+            p.density += particleMass * weight;
+        }
+    }
+    p.pressure = stiffness * (p.density - restDensity);
+
+    // Compute forces
+    float3 totalForce = gravity * gravityDirection * particleMass;
+    float3 pressureForce = float3(0, 0, 0);
+    float3 viscosityForce = float3(0, 0, 0);
+
+    for (int i = 0; i < particleCount; ++i)
+    {
+        if (i == id.x) continue;
+
+        float3 direction = particles[i].position - p.position;
+        float distance = length(direction);
+
+        if (distance < smoothingRadius)
+        {
+            float pressureTerm = (p.pressure + particles[i].pressure) / (2.0 * particles[i].density);
+            pressureForce += -particleMass * pressureTerm * SpikyKernelGradient(direction, smoothingRadius);
+
+            float3 velocityDifference = particles[i].velocity - p.velocity;
+            viscosityForce += viscosity * particleMass * (velocityDifference / particles[i].density) * ViscosityKernelLaplacian(distance, smoothingRadius);
+        }
+    }
+    float3 gravityForce = gravity * gravityDirection * particleMass;
+    totalForce += pressureForce + viscosityForce + gravityForce;
+    totalForce += windForce * windStrength;
+
+    p.velocity += deltaTime * totalForce * 0.1;
+    p.position += deltaTime * p.velocity;
+
+    if (p.position.x < boxMin.x)
+    {
+        p.position.x = boxMin.x;
+        p.velocity.x = -p.velocity.x;
+    }
+    if (p.position.x > boxMax.x)
+    {
+        p.position.x = boxMax.x;
+        p.velocity.x = -p.velocity.x;
+    }
+    if (p.position.y < boxMin.y)
+    {
+        p.position.y = boxMin.y;
+        p.velocity.y = -p.velocity.y;
+    }
+    if (p.position.y > boxMax.y)
+    {
+        p.position.y = boxMax.y;
+        p.velocity.y = -p.velocity.y;
+    }
+    if (p.position.z < boxMin.z)
+    {
+        p.position.z = boxMin.z;
+        p.velocity.z = -p.velocity.z;
+    }
+    if (p.position.z > boxMax.z)
+    {
+        p.position.z = boxMax.z;
+        p.velocity.z = -p.velocity.z;
+    }
+
+    particles[id.x] = p;
+}

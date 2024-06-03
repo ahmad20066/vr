@@ -9,7 +9,7 @@
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <RootNamespace></RootNamespace>
-    <ProjectGuid>{989d342a-8197-3b86-af56-7b317bae6831}</ProjectGuid>
+    <ProjectGuid>{03019d7a-9b3f-553a-1479-58b428541fc6}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AssemblyName>UnityEditor.UI</AssemblyName>
@@ -52,8 +52,8 @@
      <Compile Include="Library\PackageCache\com.unity.ugui@1.0.0\Editor\UI\LayoutPropertiesPreview.cs" />
      <Compile Include="Library\PackageCache\com.unity.ugui@1.0.0\Editor\EventSystem\EventSystemEditor.cs" />
      <Compile Include="Library\PackageCache\com.unity.ugui@1.0.0\Editor\UI\CanvasScalerEditor.cs" />
-     <Compile Include="Library\PackageCache\com.unity.ugui@1.0.0\Editor\UI\PrefabLayoutRebuilder.cs" />
      <Compile Include="Library\PackageCache\com.unity.ugui@1.0.0\Editor\UI\SpriteDrawUtility.cs" />
+     <Compile Include="Library\PackageCache\com.unity.ugui@1.0.0\Editor\UI\PrefabLayoutRebuilder.cs" />
      <Compile Include="Library\PackageCache\com.unity.ugui@1.0.0\Editor\UI\GraphicEditor.cs" />
      <Compile Include="Library\PackageCache\com.unity.ugui@1.0.0\Editor\UI\SelectableEditor.cs" />
      <Compile Include="Library\PackageCache\com.unity.ugui@1.0.0\Editor\UI\GridLayoutGroupEditor.cs" />
@@ -308,20 +308,20 @@
     <Reference Include="UnityEditor.WindowsStandalone.Extensions">
         <HintPath>D:\unity\editor\2020.3.33f1\Editor\Data\PlaybackEngines\WindowsStandaloneSupport\UnityEditor.WindowsStandalone.Extensions.dll</HintPath>
     </Reference>
-    <Reference Include="log4netPlastic">
-        <HintPath>D:\wind tunnel\Library\PackageCache\com.unity.collab-proxy@1.15.15\Lib\Editor\PlasticSCM\log4netPlastic.dll</HintPath>
+    <Reference Include="Unity.Plastic.Newtonsoft.Json">
+        <HintPath>D:\zombies\2\vr\Library\PackageCache\com.unity.collab-proxy@1.15.15\Lib\Editor\PlasticSCM\Unity.Plastic.Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Plastic.Antlr3.Runtime">
-        <HintPath>D:\wind tunnel\Library\PackageCache\com.unity.collab-proxy@1.15.15\Lib\Editor\PlasticSCM\Unity.Plastic.Antlr3.Runtime.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.Plastic.Newtonsoft.Json">
-        <HintPath>D:\wind tunnel\Library\PackageCache\com.unity.collab-proxy@1.15.15\Lib\Editor\PlasticSCM\Unity.Plastic.Newtonsoft.Json.dll</HintPath>
+        <HintPath>D:\zombies\2\vr\Library\PackageCache\com.unity.collab-proxy@1.15.15\Lib\Editor\PlasticSCM\Unity.Plastic.Antlr3.Runtime.dll</HintPath>
     </Reference>
     <Reference Include="unityplastic">
-        <HintPath>D:\wind tunnel\Library\PackageCache\com.unity.collab-proxy@1.15.15\Lib\Editor\PlasticSCM\unityplastic.dll</HintPath>
+        <HintPath>D:\zombies\2\vr\Library\PackageCache\com.unity.collab-proxy@1.15.15\Lib\Editor\PlasticSCM\unityplastic.dll</HintPath>
+    </Reference>
+    <Reference Include="log4netPlastic">
+        <HintPath>D:\zombies\2\vr\Library\PackageCache\com.unity.collab-proxy@1.15.15\Lib\Editor\PlasticSCM\log4netPlastic.dll</HintPath>
     </Reference>
     <Reference Include="nunit.framework">
-        <HintPath>D:\wind tunnel\Library\PackageCache\com.unity.ext.nunit@1.0.6\net35\unity-custom\nunit.framework.dll</HintPath>
+        <HintPath>D:\zombies\2\vr\Library\PackageCache\com.unity.ext.nunit@1.0.6\net35\unity-custom\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="UnityEditor.iOS.Extensions.Xcode">
         <HintPath>D:\unity\editor\2020.3.33f1\Editor\Data\PlaybackEngines\iOSSupport\UnityEditor.iOS.Extensions.Xcode.dll</HintPath>
@@ -680,15 +680,15 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="UnityEngine.UI.csproj">
-      <Project>{80968f1d-3aab-0083-f843-11290737fc5d}</Project>
+      <Project>{e464144b-02e5-d498-c9e7-7374fcae4566}</Project>
       <Name>UnityEngine.UI</Name>
     </ProjectReference>
     <ProjectReference Include="UnityEngine.TestRunner.csproj">
-      <Project>{dbd44933-0d85-6f11-cb68-2eb04083b3bb}</Project>
+      <Project>{b2fa11a1-4ab2-39b1-45f6-2ce539b27399}</Project>
       <Name>UnityEngine.TestRunner</Name>
     </ProjectReference>
     <ProjectReference Include="UnityEditor.TestRunner.csproj">
-      <Project>{af2a55ce-76a9-8020-0ddd-545fb6397e2e}</Project>
+      <Project>{c7fa906f-0263-4f9e-14b9-1d917d0ab19f}</Project>
       <Name>UnityEditor.TestRunner</Name>
     </ProjectReference>
   </ItemGroup>

@@ -1,33 +1,26 @@
-using System.Collections;
-using System.Collections.Generic;
+// Particle.cs
 using UnityEngine;
 
 public class Particle : MonoBehaviour
 {
-    public float pressure;
-    public float density;
-    public Vector3 viscosity;
-
-    public float mass;
-    public Vector3 currentForce;
-    public Vector3 velocity;
+    public int id;
     public Vector3 position;
-    public GameObject sphere;
+    public Vector3 velocity;
+    public Vector3 predictedPosition;
+    public Vector3 predictedVelocity;
+    public float density;
+    public float pressure;
+    public Vector3 force;
 
-    void Start()
+    public Particle(Vector3 initialPosition, Vector3 initialVelocity, int particleId)
     {
-
+        id = particleId;
+        position = initialPosition;
+        velocity = initialVelocity;
+        predictedPosition = initialPosition;
+        predictedVelocity = initialVelocity;
+        density = 0f;
+        pressure = 0f;
+        force = Vector3.zero;
     }
-
-    // Update is called once per frame
-    void Update()
-    {
-
-        // Debug.Log(position);
-        // GetComponentInParent<Transform>().position = position;
-        // Debug.Log("******");
-        // Debug.Log(GetComponentInParent<Transform>().position);
-        // transform.position = position;
-    }
-
 }

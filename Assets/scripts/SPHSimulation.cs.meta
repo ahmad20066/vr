@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 31b0841b0ee69c747bcbf66fba036f54
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - sphComputeShader: {fileID: 7200000, guid: 6473cbcc087a0444893b27b098e22b46, type: 3}
+  - particleRenderShader: {fileID: 4800000, guid: 4ac45b0a0e6944744b5eed9baa6a2a8d, type: 3}
+  - particleRenderMaterial: {fileID: 2100000, guid: 43ad3e0291c378542802479fc31d0b59, type: 2}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
