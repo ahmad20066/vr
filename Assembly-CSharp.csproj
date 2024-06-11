@@ -38,10 +38,11 @@
   <ItemGroup>
      <Compile Include="Assets\scripts\MeshSplitter.cs" />
      <Compile Include="Assets\scripts\KdTree.cs" />
+     <Compile Include="Assets\scripts\OctTree.cs" />
      <Compile Include="Assets\scripts\Particle.cs" />
      <Compile Include="Assets\scripts\SPHSimulation.cs" />
+     <None Include="Assets\scripts\ParticleShader.shader" />
      <None Include="Assets\scripts\SphComputeShader.compute" />
-     <None Include="Assets\scripts\ParticleRender.shader" />
     <Reference Include="UnityEngine">
         <HintPath>D:\unity\editor\2020.3.33f1\Editor\Data\Managed\UnityEngine\UnityEngine.dll</HintPath>
     </Reference>

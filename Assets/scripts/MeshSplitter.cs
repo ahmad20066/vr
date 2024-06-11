@@ -5,6 +5,9 @@ public class MeshSplitter : MonoBehaviour
 {
     [Range(0.0f, 0.1f)]
     public float mergeThreshold = 0.01f;
+    public ComputeShader sphComputeShader;
+
+    public ComputeBuffer triangleBuffer;
 
     void Start()
     {
@@ -17,17 +20,12 @@ public class MeshSplitter : MonoBehaviour
         }
 
         Mesh mesh = meshFilter.mesh;
-
-
         Mesh simplifiedMesh = SimplifyMesh(mesh, mergeThreshold);
 
         Vector3[] vertices = simplifiedMesh.vertices;
         int[] triangles = simplifiedMesh.triangles;
 
-        GameObject triangleParent = new GameObject(gameObject.name + "_TrianglePieces");
-        triangleParent.transform.position = transform.position;
-        triangleParent.transform.rotation = transform.rotation;
-        triangleParent.transform.localScale = transform.localScale;
+        List<Vector3> triangleData = new List<Vector3>();
 
         for (int i = 0; i < triangles.Length; i += 3)
         {
@@ -39,28 +37,31 @@ public class MeshSplitter : MonoBehaviour
             Vector3 vertex2 = vertices[vertexIndex2];
             Vector3 vertex3 = vertices[vertexIndex3];
 
-            vertex1 = transform.TransformPoint(vertex1);
-            vertex2 = transform.TransformPoint(vertex2);
-            vertex3 = transform.TransformPoint(vertex3);
+            // Scale vertices by 0.5
+            vertex1 *= 0.5f;
+            vertex2 *= 0.5f;
+            vertex3 *= 0.5f;
 
-            Mesh triangleMesh = new Mesh();
-            triangleMesh.vertices = new Vector3[] { vertex1, vertex2, vertex3 };
-            triangleMesh.triangles = new int[] { 0, 1, 2 };
-
-            GameObject triangleObject = new GameObject("Triangle_" + (i / 3));
-            triangleObject.transform.SetParent(triangleParent.transform);
-
-            MeshFilter triangleMeshFilter = triangleObject.AddComponent<MeshFilter>();
-            triangleMeshFilter.mesh = triangleMesh;
-
-            MeshRenderer triangleMeshRenderer = triangleObject.AddComponent<MeshRenderer>();
-            triangleMeshRenderer.material = GetComponent<MeshRenderer>().material;
-
-            triangleObject.transform.position = (vertex1 + vertex2 + vertex3) / 3.0f;
-
+            triangleData.Add(vertex1);
+            triangleData.Add(vertex2);
+            triangleData.Add(vertex3);
         }
 
+        triangleBuffer = new ComputeBuffer(triangleData.Count, sizeof(float) * 3);
+        triangleBuffer.SetData(triangleData.ToArray());
+        sphComputeShader.SetBuffer(0, "triangles", triangleBuffer);
+        sphComputeShader.SetInt("triangleCount", triangleData.Count / 3);
+
         Debug.Log("Model sliced into individual triangle pieces.");
+        Debug.Log(triangleData.Count);
+    }
+
+    void OnDestroy()
+    {
+        if (triangleBuffer != null)
+        {
+            triangleBuffer.Release();
+        }
     }
 
     Mesh SimplifyMesh(Mesh mesh, float threshold)

@@ -1,4 +1,5 @@
 #pragma kernel CSMain
+#pragma kernel HandleCollisions
 
 struct Particle
 {
@@ -8,9 +9,22 @@ struct Particle
     float pressure;
 };
 
+struct Triangle
+{
+    float3 v0;
+    float3 v1;
+    float3 v2;
+};
+
 RWStructuredBuffer<Particle> particles;
+StructuredBuffer<Triangle> triangles;
+StructuredBuffer<float3> nodeCenters;
+StructuredBuffer<float3> nodeSizes;
+StructuredBuffer<int> nodeObjectCounts;
+StructuredBuffer<int> nodeObjects;
 
 int particleCount;
+int triangleCount;
 float restDensity;
 float stiffness;
 float viscosity;
@@ -49,7 +63,7 @@ float ViscosityKernelLaplacian(float r, float h)
 }
 
 [numthreads(256, 1, 1)]
-void CSMain(uint3 id : SV_DispatchThreadID)
+void CSMain (uint3 id : SV_DispatchThreadID)
 {
     if (id.x >= particleCount) return;
 
@@ -69,7 +83,7 @@ void CSMain(uint3 id : SV_DispatchThreadID)
     p.pressure = stiffness * (p.density - restDensity);
 
     // Compute forces
-    float3 totalForce = gravity * gravityDirection * particleMass;
+    float3 totalForce = float3(0, 0, 0);
     float3 pressureForce = float3(0, 0, 0);
     float3 viscosityForce = float3(0, 0, 0);
 
@@ -93,38 +107,58 @@ void CSMain(uint3 id : SV_DispatchThreadID)
     totalForce += pressureForce + viscosityForce + gravityForce;
     totalForce += windForce * windStrength;
 
-    p.velocity += deltaTime * totalForce * 0.1;
+    p.velocity += deltaTime * totalForce * 0.0002;
     p.position += deltaTime * p.velocity;
 
-    if (p.position.x < boxMin.x)
+    // Boundary conditions
+    if (p.position.x < boxMin.x) { p.position.x = boxMin.x; p.velocity.x = -p.velocity.x; }
+    if (p.position.x > boxMax.x) { p.position.x = boxMax.x; p.velocity.x = -p.velocity.x; }
+    if (p.position.y < boxMin.y) { p.position.y = boxMin.y; p.velocity.y = -p.velocity.y; }
+    if (p.position.y > boxMax.y) { p.position.y = boxMax.y; p.velocity.y = -p.velocity.y; }
+    if (p.position.z < boxMin.z) { p.position.z = boxMin.z; p.velocity.z = -p.velocity.z; }
+    if (p.position.z > boxMax.z) { p.position.z = boxMax.z; p.velocity.z = -p.velocity.z; }
+
+    particles[id.x] = p;
+}
+
+bool IsPointInTriangle(float3 p, float3 a, float3 b, float3 c)
+{
+    // Calculate vectors
+    float3 v0 = b - a;
+    float3 v1 = c - b;
+    float3 v2 = a - c;
+
+    // Calculate normal vectors for each edge
+    float3 n0 = cross(v0, p - a);
+    float3 n1 = cross(v1, p - b);
+    float3 n2 = cross(v2, p - c);
+
+    // Check if the point lies on the same side of each edge
+    return dot(n0, n1) >= 0 && dot(n1, n2) >= 0 && dot(n2, n0) >= 0;
+}
+
+
+[numthreads(256, 1, 1)]
+void HandleCollisions(uint id : SV_DispatchThreadID)
+{
+    if (id.x >= particleCount) return;
+
+    Particle p = particles[id.x];
+
+    for (int i = 0; i < triangleCount; i++)
     {
-        p.position.x = boxMin.x;
-        p.velocity.x = -p.velocity.x;
-    }
-    if (p.position.x > boxMax.x)
-    {
-        p.position.x = boxMax.x;
-        p.velocity.x = -p.velocity.x;
-    }
-    if (p.position.y < boxMin.y)
-    {
-        p.position.y = boxMin.y;
-        p.velocity.y = -p.velocity.y;
-    }
-    if (p.position.y > boxMax.y)
-    {
-        p.position.y = boxMax.y;
-        p.velocity.y = -p.velocity.y;
-    }
-    if (p.position.z < boxMin.z)
-    {
-        p.position.z = boxMin.z;
-        p.velocity.z = -p.velocity.z;
-    }
-    if (p.position.z > boxMax.z)
-    {
-        p.position.z = boxMax.z;
-        p.velocity.z = -p.velocity.z;
+        Triangle t = triangles[i];
+
+       
+        if (IsPointInTriangle(p.position, t.v0, t.v1, t.v2))
+        {
+            float3 normal = normalize(cross(t.v1 - t.v0, t.v2 - t.v0));
+            p.velocity = reflect(p.velocity, normal);
+            p.position += normal * 0.01f;
+
+          
+            break;
+        }
     }
 
     particles[id.x] = p;
